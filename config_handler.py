@@ -1,6 +1,6 @@
 from configparser import ConfigParser   
 
-def load_from_config(key, section='DEFAULT') -> str:
+def read_from_config(key, section='DEFAULT') -> str:
     config = ConfigParser()
     config.read('config.ini')
 
