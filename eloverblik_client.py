@@ -1,4 +1,3 @@
-from mimetypes import init
 from requests import get, post
 from config_handler import read_from_config, write_to_config
 
@@ -23,14 +22,13 @@ class MyEnergyClient:
         new_access_token = self.get_new_access_token()
         write_to_config('accesstoken', new_access_token)
 
-    def get_metering_point_details(self, mentering_point_id) -> str:
+    def get_metering_point_details(self, mentering_point_id, attempt=1) -> str:
         access_token = read_from_config('accesstoken')
 
         res = post(
             url=f'{self.api_path}/meteringpoints/meteringpoint/getdetails',
             headers={
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type': 'application/json'
+                'Authorization': f'Bearer {access_token}'
             },
             json={
                 'meteringPoints': {
@@ -41,14 +39,20 @@ class MyEnergyClient:
             }
         )
 
+        if res.status_code == 401 and attempt == 1:
+            print("Unauthorized. Updating access token and retrying ...")
+            self.update_access_token()
+
+            return self.get_metering_point_details(mentering_point_id, attempt=2)
+
         return res.json()
 
 client = MyEnergyClient()
 
 # ===== TEST: Update access token =====
-client.update_access_token()
-access_token = read_from_config('accesstoken')
-print(access_token)
+# client.update_access_token()
+# access_token = read_from_config('accesstoken')
+# print(access_token)
 
 # ===== TEST: Get metering point details =====
 metering_point_id = read_from_config('meteringpointid')

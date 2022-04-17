@@ -6,7 +6,7 @@ def read_from_config(key, section='DEFAULT') -> str:
 
     return config[section][key]
 
-def write_to_config(key, value, section='DEFAULT') -> str:
+def write_to_config(key, value, section='DEFAULT') -> None:
     config = ConfigParser()
     config.read('config.ini')
 
