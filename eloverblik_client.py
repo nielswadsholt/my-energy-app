@@ -4,33 +4,53 @@ from config_handler import read_from_config, write_to_config
 class MyEnergyClient:
 
     def __init__(self) -> None:
-        self.api_path = 'https://api.eloverblik.dk/customerapi/api'
+        self.__api_path = 'https://api.eloverblik.dk/customerapi/api'
 
-    def get_new_access_token(self) -> str:
+    def __get_new_access_token(self) -> str:
         refresh_token = read_from_config('refreshtoken')
 
         res = get(
-            url=f'{self.api_path}/token',
+            url=f'{self.__api_path}/token',
             headers={
                 'Authorization': f'Bearer {refresh_token}'
             }
         )
 
         return res.json()['result']
+    
+    def __execute_post_query(self, endpoint_path: str, data=None):
+        succes = False
+        failed_attempts = 0
+        res = None
+        
+        while succes == False and failed_attempts < 2:
+            access_token = read_from_config('accesstoken')
+            res = post(
+                url=f'{self.__api_path}/{endpoint_path}',
+                headers={
+                    'Authorization': f'Bearer {access_token}'
+                },
+                json=data
+            )
+
+            if res.status_code == 401:
+                print("Unauthorized. Updating access token and retrying ...")
+                self.update_access_token()
+                failed_attempts += 1
+            else:
+                succes = True
+
+        return res.json()
 
     def update_access_token(self) -> None:
-        new_access_token = self.get_new_access_token()
+        new_access_token = self.__get_new_access_token()
         write_to_config('accesstoken', new_access_token)
 
-    def get_metering_point_details(self, mentering_point_id, attempt=1) -> str:
-        access_token = read_from_config('accesstoken')
-
-        res = post(
-            url=f'{self.api_path}/meteringpoints/meteringpoint/getdetails',
-            headers={
-                'Authorization': f'Bearer {access_token}'
-            },
-            json={
+    def get_metering_point_details(self, mentering_point_id: str) -> str:
+        
+        return self.__execute_post_query(
+            endpoint_path='meteringpoints/meteringpoint/getdetails',
+            data={
                 'meteringPoints': {
                     'meteringPoint': [
                         mentering_point_id
@@ -39,23 +59,11 @@ class MyEnergyClient:
             }
         )
 
-        if res.status_code == 401 and attempt == 1:
-            print("Unauthorized. Updating access token and retrying ...")
-            self.update_access_token()
-
-            return self.get_metering_point_details(mentering_point_id, attempt=2)
-
-        return res.json()
-
-    def get_time_series(self, mentering_point_id: str, start_date: str, end_date: str, aggr='Actual', attempt=1) -> str:
-        access_token = read_from_config('accesstoken')
-
-        res = post(
-            url=f'{self.api_path}/meterdata/gettimeseries/{start_date}/{end_date}/{aggr}',
-            headers={
-                'Authorization': f'Bearer {access_token}'
-            },
-            json={
+    def get_time_series(self, mentering_point_id: str, start_date: str, end_date: str, aggr='Actual') -> str:
+        
+        return self.__execute_post_query(
+            endpoint_path=f'meterdata/gettimeseries/{start_date}/{end_date}/{aggr}',
+            data={
                 'meteringPoints': {
                     'meteringPoint': [
                         mentering_point_id
@@ -63,15 +71,6 @@ class MyEnergyClient:
                 }
             }
         )
-
-        if res.status_code == 401 and attempt == 1:
-            print("Unauthorized. Updating access token and retrying ...")
-            self.update_access_token()
-
-            return self.get_metering_point_details(mentering_point_id, attempt=2)
-
-        return res.json()
-
 
 # ===== MANUAL TESTING =====
 
