@@ -1,9 +1,9 @@
-from my_energy_client import MyEnergyClient
+from eloverblik_client import EloverblikClient
 from config_handler import read_from_config
 
 if __name__ == "__main__":
 
-    client = MyEnergyClient()
+    client = EloverblikClient()
 
     # ===== TEST: Update access token =====
     # client.update_access_token()

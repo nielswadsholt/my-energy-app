@@ -1,7 +1,7 @@
 from requests import get, post
 from config_handler import read_from_config, write_to_config
 
-class MyEnergyClient:
+class EloverblikClient:
 
     def __init__(self) -> None:
         self.__api_path = 'https://api.eloverblik.dk/customerapi/api'
