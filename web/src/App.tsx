@@ -1,26 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import { getTimeSeries } from './server'
+import { format, sub } from 'date-fns'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+export const App = () => {
+    const [timeSeries, setTimeSeries] = useState('');
+
+    useEffect(() => {
+        const to_date = new Date();
+        const from_date = sub(to_date, { days: 1 });
+
+        getTimeSeries(
+            format(from_date, 'yyyy-MM-dd'),
+            format(to_date, 'yyyy-MM-dd'),
+            (data) => setTimeSeries(JSON.stringify(data))
+        )
+    }, []);
+
+    return <div className="App">
+        {timeSeries}
     </div>
-  );
 }
 
-export default App;
