@@ -23,7 +23,7 @@ class EloverblikClient:
         failed_attempts = 0
         res = None
         
-        while succes == False and failed_attempts < 2:
+        while not succes and failed_attempts < 2:
             access_token = read_from_config('accesstoken')
             res = post(
                 url=f'{self.__api_path}/{endpoint_path}',
