@@ -1,8 +1,11 @@
 from configparser import ConfigParser   
 
-def read_from_config(key, section='DEFAULT') -> str:
+def read_from_config(key, section='DEFAULT') -> str | None:
     config = ConfigParser()
     config.read('config.ini')
+
+    if not config.has_option(section, key):
+        return None
 
     return config[section][key]
 
