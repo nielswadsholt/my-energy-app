@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import { getTimeSeries } from './server'
 import { format, sub } from 'date-fns'
+import { TimeSeries } from './models';
 
 export const App = () => {
-    const [timeSeries, setTimeSeries] = useState('');
+    const [timeSeries, setTimeSeries] = useState<TimeSeries>();
 
     useEffect(() => {
         const to_date = new Date();
@@ -13,12 +14,18 @@ export const App = () => {
         getTimeSeries(
             format(from_date, 'yyyy-MM-dd'),
             format(to_date, 'yyyy-MM-dd'),
-            (data) => setTimeSeries(JSON.stringify(data))
+            (data) => {
+                setTimeSeries(data)
+            }
         )
     }, []);
 
-    return <div className="App">
-        {timeSeries}
-    </div>
+    return timeSeries
+        ? <div className="App">
+            <div>{timeSeries.resolution}</div>
+            <div>{timeSeries.interval.start} - {timeSeries.interval.end}</div>
+            {timeSeries.data_points.map(x => <div>{x.tick}: {x.value}</div>)}
+        </div>
+        : null
 }
 
