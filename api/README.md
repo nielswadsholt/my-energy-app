@@ -1,4 +1,4 @@
-# my-energy-app: API
+# My Energy App: API
 
 ## Prerequisites
 1. The id and refresh token for your metering point. Those can be retrieved through the [Eloverblik portal](https://eloverblik.dk)
