@@ -4,10 +4,7 @@ def read_from_config(key, section='DEFAULT') -> str | None:
     config = ConfigParser()
     config.read('config.ini')
 
-    if not config.has_option(section, key):
-        return None
-
-    return config[section][key]
+    return config[section][key] if config.has_option(section, key) else None
 
 def write_to_config(key, value, section='DEFAULT') -> None:
     config = ConfigParser()

@@ -8,7 +8,7 @@ export const App = () => {
 
     useEffect(() => {
         const to_date = new Date();
-        const from_date = sub(to_date, { days: 1 });
+        const from_date = sub(to_date, { days: 2 });
 
         getTimeSeries(
             format(from_date, 'yyyy-MM-dd'),
