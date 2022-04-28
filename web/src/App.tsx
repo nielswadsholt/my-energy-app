@@ -3,7 +3,7 @@ import './App.css';
 import { getTimeSeries } from './server'
 import { format, sub } from 'date-fns'
 import { TimeSeries } from './models';
-import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts'
+import { VictoryChart, VictoryGroup, VictoryLine, VictoryScatter, VictoryTooltip, VictoryVoronoiContainer } from 'victory'
 
 export const App = () => {
     const [timeSeries, setTimeSeries] = useState<TimeSeries>();
@@ -21,21 +21,29 @@ export const App = () => {
         )
     }, []);
 
+    console.log(timeSeries?.data_points)
+
     return timeSeries
         ? <div className='App'>
             <div>{timeSeries.resolution}</div>
             <div>{timeSeries.interval.start} - {timeSeries.interval.end}</div>
-            <LineChart
-                width={1200}
-                height={800}
-                data={timeSeries.data_points}
-                margin={{ top: 5, right: 20, left: 10, bottom: 5 }} >
-                    <XAxis dataKey='tick' />
-                    <YAxis dataKey='value'/>
-                    <Tooltip/>
-                    <CartesianGrid stroke='#f5f5f5' />
-                    <Line type='monotone' dataKey='value' stroke='#ff7300' />
-            </LineChart>
+            <VictoryChart containerComponent={<VictoryVoronoiContainer/>} >
+                <VictoryGroup
+                    color="#c43a31"
+                    data={timeSeries.data_points.map(p => ({ x: p.tick, y: p.value }))}
+                    labels={({ datum }) => `y: ${datum.y}`}
+                    labelComponent={
+                        <VictoryTooltip
+                            style={{ fontSize: 8 }}
+                        />
+                    }
+                >
+                    <VictoryLine />
+                    <VictoryScatter
+                        size={({ active }) => active ? 8 : 3}
+                    />
+                </VictoryGroup>
+            </VictoryChart>
         </div>
         : null
 }
